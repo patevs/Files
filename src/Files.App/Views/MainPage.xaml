@@ -253,7 +253,9 @@
 						Grid.RowSpan="5"
 						Grid.Column="3"
 						Margin="4,0,0,8"
-						x:Load="{x:Bind ViewModel.ShowShelfPane, Mode=OneWay}" />
+						x:Load="{x:Bind ViewModel.ShowShelfPane, Mode=OneWay}"
+						ClearCommand="{x:Bind ViewModel.ShelfViewModel.ClearItemsCommand}"
+						ItemsSource="{x:Bind ViewModel.ShelfViewModel.Items}" />
 				</Grid>
 			</controls:SidebarView.InnerContent>
 
@@ -282,6 +284,7 @@
 						ToolTipService.ToolTip="{x:Bind Commands.OpenSettings.LabelWithHotKey, Mode=OneWay}">
 						<Button.Resources>
 							<SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource SubtleFillColorSecondary}" />
+							<SolidColorBrush x:Key="ButtonForegroundDisabled" Color="{ThemeResource TextFillColorPrimary}" />
 						</Button.Resources>
 						<Grid HorizontalAlignment="Stretch">
 							<Grid.ColumnDefinitions>
