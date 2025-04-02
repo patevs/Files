@@ -2195,6 +2195,9 @@
   <data name="EditSettingsFile" xml:space="preserve">
     <value>Edit settings file</value>
   </data>
+  <data name="EditSettingsFileDescription" xml:space="preserve">
+    <value>Open settings file in your default editor</value>
+  </data>
   <data name="WhatsNew" xml:space="preserve">
     <value>What's new</value>
   </data>
@@ -3694,6 +3697,9 @@
   <data name="FailedToSetBackground" xml:space="preserve">
     <value>Failed to set the background wallpaper</value>
   </data>
+  <data name="FailedToOpenSettingsFile" xml:space="preserve">
+    <value>Failed to open the settings file</value>
+  </data>
   <data name="GitDeleteBranch" xml:space="preserve">
     <value>Delete Git branch</value>
   </data>
@@ -4171,5 +4177,14 @@
   <data name="CompareFile" xml:space="preserve">
     <value>Compare a file</value>
     <comment>Button that appears in file hash properties that allows the user to compare two files</comment>
+  </data>
+  <data name="SizeFormat" xml:space="preserve">
+    <value>Size format</value>
+  </data>
+  <data name="Binary" xml:space="preserve">
+    <value>Binary</value>
+  </data>
+  <data name="Decimal" xml:space="preserve">
+    <value>Decimal</value>
   </data>
 </root>

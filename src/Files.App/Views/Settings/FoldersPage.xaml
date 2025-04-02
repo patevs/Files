@@ -166,21 +166,33 @@
 				<ToggleSwitch AutomationProperties.Name="{helpers:ResourceString Name=ScrollToPreviousFolderWhenNavigatingUp}" IsOn="{x:Bind ViewModel.ScrollToPreviousFolderWhenNavigatingUp, Mode=TwoWay}" />
 			</wctcontrols:SettingsCard>
 
+			<!--  Size format  -->
+			<wctcontrols:SettingsCard Header="{helpers:ResourceString Name=SizeFormat}">
+				<wctcontrols:SettingsCard.HeaderIcon>
+					<FontIcon Glyph="&#xE67A;" />
+				</wctcontrols:SettingsCard.HeaderIcon>
+
+				<uc:ComboBoxEx
+					AutomationProperties.Name="{helpers:ResourceString Name=SizeFormat}"
+					ItemsSource="{x:Bind ViewModel.SizeUnitsOptions.Values}"
+					SelectedItem="{x:Bind ViewModel.SizeUnitFormat, Mode=TwoWay}" />
+			</wctcontrols:SettingsCard>
+
 			<!--  Calculate folder sizes  -->
 			<wctcontrols:SettingsExpander Header="{helpers:ResourceString Name=CalculateFolderSizes}" IsExpanded="True">
 				<wctcontrols:SettingsExpander.HeaderIcon>
 					<FontIcon Glyph="&#xEE40;" />
 				</wctcontrols:SettingsExpander.HeaderIcon>
 				<ToggleSwitch AutomationProperties.Name="{helpers:ResourceString Name=CalculateFolderSizes}" IsOn="{x:Bind ViewModel.CalculateFolderSizes, Mode=TwoWay}" />
-				<wctcontrols:SettingsExpander.Items>
+				<wctcontrols:SettingsExpander.ItemsHeader>
 					<InfoBar
-						CornerRadius="0,0,2,2"
+						CornerRadius="0"
 						IsClosable="False"
 						IsIconVisible="True"
 						IsOpen="True"
 						Message="{helpers:ResourceString Name=ShowFolderSizesWarning}"
 						Severity="Warning" />
-				</wctcontrols:SettingsExpander.Items>
+				</wctcontrols:SettingsExpander.ItemsHeader>
 			</wctcontrols:SettingsExpander>
 		</StackPanel>
 	</Grid>
