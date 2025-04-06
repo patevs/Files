@@ -25,6 +25,7 @@ namespace Files.App.ViewModels.UserControls
 
 		private readonly IUserSettingsService UserSettingsService = Ioc.Default.GetRequiredService<IUserSettingsService>();
 		private readonly IAppearanceSettingsService AppearanceSettingsService = Ioc.Default.GetRequiredService<IAppearanceSettingsService>();
+		private readonly IGeneralSettingsService GeneralSettingsService = Ioc.Default.GetRequiredService<IGeneralSettingsService>();
 		private readonly DrivesViewModel drivesViewModel = Ioc.Default.GetRequiredService<DrivesViewModel>();
 		private readonly IUpdateService UpdateService = Ioc.Default.GetRequiredService<IUpdateService>();
 		private readonly ICommandManager Commands = Ioc.Default.GetRequiredService<ICommandManager>();
@@ -65,9 +66,8 @@ namespace Files.App.ViewModels.UserControls
 
 		public bool SearchHasFocus { get; private set; }
 
-		public bool IsAppUpdated => UpdateService.IsAppUpdated;
-
 		public bool ShowHomeButton => AppearanceSettingsService.ShowHomeButton;
+		public bool EnableOmnibar => GeneralSettingsService.EnableOmnibar;
 
 		public bool ShowShelfPaneToggleButton => AppearanceSettingsService.ShowShelfPaneToggleButton && AppLifecycleHelper.AppEnvironment is AppEnvironment.Dev;
 
@@ -308,6 +308,15 @@ namespace Files.App.ViewModels.UserControls
 						break;
 				}
 			};
+			GeneralSettingsService.PropertyChanged += (s, e) =>
+			{
+				switch (e.PropertyName)
+				{
+					case nameof(GeneralSettingsService.EnableOmnibar):
+						OnPropertyChanged(nameof(EnableOmnibar));
+						break;
+				}
+			};
 		}
 
 		// Methods
@@ -348,7 +357,9 @@ namespace Files.App.ViewModels.UserControls
 		public void PathBoxItem_DragLeave(object sender, DragEventArgs e)
 		{
 			if (((StackPanel)sender).DataContext is not PathBoxItem pathBoxItem ||
-				pathBoxItem.Path == "Home")
+				pathBoxItem.Path == "Home" ||
+				pathBoxItem.Path == "ReleaseNotes" ||
+				pathBoxItem.Path == "Settings")
 			{
 				return;
 			}
@@ -369,7 +380,9 @@ namespace Files.App.ViewModels.UserControls
 			_dragOverPath = null;
 
 			if (((StackPanel)sender).DataContext is not PathBoxItem pathBoxItem ||
-				pathBoxItem.Path == "Home")
+				pathBoxItem.Path == "Home" ||
+				pathBoxItem.Path == "ReleaseNotes" ||
+				pathBoxItem.Path == "Settings")
 			{
 				return;
 			}
@@ -398,7 +411,9 @@ namespace Files.App.ViewModels.UserControls
 		{
 			if (IsSingleItemOverride ||
 				((StackPanel)sender).DataContext is not PathBoxItem pathBoxItem ||
-				pathBoxItem.Path == "Home")
+				pathBoxItem.Path == "Home" ||
+				pathBoxItem.Path == "ReleaseNotes" ||
+				pathBoxItem.Path == "Settings")
 			{
 				return;
 			}
@@ -759,6 +774,17 @@ namespace Files.App.ViewModels.UserControls
 					SavePathToHistory("Home");
 					shellPage.NavigateHome();
 				}
+				else if (normalizedInput.Equals("ReleaseNotes", StringComparison.OrdinalIgnoreCase) || normalizedInput.Equals(Strings.ReleaseNotes.GetLocalizedResource(), StringComparison.OrdinalIgnoreCase))
+				{
+					SavePathToHistory("ReleaseNotes");
+					shellPage.NavigateToReleaseNotes();
+				}
+				// TODO add settings page
+				//else if (normalizedInput.Equals("Settings", StringComparison.OrdinalIgnoreCase) || normalizedInput.Equals(Strings.Settings.GetLocalizedResource(), StringComparison.OrdinalIgnoreCase))
+				//{
+				//	SavePathToHistory("Settings");
+				//	shellPage.NavigateToReleaseNotes();
+				//}
 				else
 				{
 					normalizedInput = StorageFileExtensions.GetResolvedPath(normalizedInput, isFtp);
@@ -875,7 +901,7 @@ namespace Files.App.ViewModels.UserControls
 						IsCommandPaletteOpen = false;
 						var currentInput = sender.Text;
 
-						if (string.IsNullOrWhiteSpace(currentInput) || currentInput == "Home")
+						if (string.IsNullOrWhiteSpace(currentInput) || currentInput == "Home" || currentInput == "ReleaseNotes" || currentInput == "Settings")
 						{
 							// Load previously entered path
 							var pathHistoryList = UserSettingsService.GeneralSettingsService.PathHistoryList;
