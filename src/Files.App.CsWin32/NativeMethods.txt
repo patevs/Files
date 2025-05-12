@@ -97,7 +97,6 @@ SendMessage
 IsWindowVisible
 COPYDATASTRUCT
 WINDOW_LONG_PTR_INDEX
-GetDpiForWindow
 CallWindowProc
 MINMAXINFO
 SUBCLASSPROC
@@ -222,3 +221,10 @@ SetCurrentProcessExplicitAppUserModelID
 GdipCreateBitmapFromScan0
 BITMAP
 GetObject
+_SICHINTF
+RoGetAgileReference
+IQueryInfo
+QITIPF_FLAGS
+GetKeyboardState
+MapVirtualKey
+GetKeyboardLayout
