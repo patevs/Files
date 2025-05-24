@@ -36,6 +36,7 @@ namespace Files.App.ViewModels.UserControls
 		private readonly IUpdateService UpdateService = Ioc.Default.GetRequiredService<IUpdateService>();
 		private readonly ICommandManager Commands = Ioc.Default.GetRequiredService<ICommandManager>();
 		private readonly IContentPageContext ContentPageContext = Ioc.Default.GetRequiredService<IContentPageContext>();
+		private readonly StatusCenterViewModel OngoingTasksViewModel = Ioc.Default.GetRequiredService<StatusCenterViewModel>();
 
 		// Fields
 
@@ -71,12 +72,17 @@ namespace Files.App.ViewModels.UserControls
 
 		internal ObservableCollection<OmnibarPathModeSuggestionModel> PathModeSuggestionItems { get; } = [];
 
+		internal ObservableCollection<NavigationBarSuggestionItem> OmnibarCommandPaletteModeSuggestionItems { get; } = [];
+
 		public bool IsSingleItemOverride { get; set; }
 
 		public bool SearchHasFocus { get; private set; }
 
 		public bool ShowHomeButton => AppearanceSettingsService.ShowHomeButton;
 		public bool EnableOmnibar => GeneralSettingsService.EnableOmnibar;
+		public bool ShowStatusCenterButton =>
+			AppearanceSettingsService.StatusCenterVisibility == StatusCenterVisibility.Always ||
+			(AppearanceSettingsService.StatusCenterVisibility == StatusCenterVisibility.DuringOngoingFileOperations && OngoingTasksViewModel.HasAnyItem);
 
 		public bool ShowShelfPaneToggleButton => AppearanceSettingsService.ShowShelfPaneToggleButton && AppLifecycleHelper.AppEnvironment is AppEnvironment.Dev;
 
@@ -218,6 +224,8 @@ namespace Files.App.ViewModels.UserControls
 			}
 		}
 
+		private string? _OmnibarCommandPaletteModeText;
+		public string? OmnibarCommandPaletteModeText { get => _OmnibarCommandPaletteModeText; set => SetProperty(ref _OmnibarCommandPaletteModeText, value); }
 
 		private bool _IsOmnibarFocused;
 		public  bool IsOmnibarFocused
@@ -239,6 +247,8 @@ namespace Files.App.ViewModels.UserControls
 								_ = PopulateOmnibarSuggestionsForPathMode();
 								break;
 							case OmnibarPaletteModeName:
+								if (OmnibarCommandPaletteModeSuggestionItems.Count is 0)
+									PopulateOmnibarSuggestionsForCommandPaletteMode();
 								break;
 							case OmnibarSearchModeName:
 								break;
@@ -363,6 +373,9 @@ namespace Files.App.ViewModels.UserControls
 					case nameof(AppearanceSettingsService.ShowHomeButton):
 						OnPropertyChanged(nameof(ShowHomeButton));
 						break;
+					case nameof(AppearanceSettingsService.StatusCenterVisibility):
+						OnPropertyChanged(nameof(ShowStatusCenterButton));
+						break;
 					case nameof(AppearanceSettingsService.ShowShelfPaneToggleButton):
 						OnPropertyChanged(nameof(ShowShelfPaneToggleButton));
 						break;
@@ -374,6 +387,15 @@ namespace Files.App.ViewModels.UserControls
 				{
 					case nameof(GeneralSettingsService.EnableOmnibar):
 						OnPropertyChanged(nameof(EnableOmnibar));
+						break;
+				}
+			};
+			OngoingTasksViewModel.PropertyChanged += (s, e) =>
+			{
+				switch (e.PropertyName)
+				{
+					case nameof(OngoingTasksViewModel.HasAnyItem):
+						OnPropertyChanged(nameof(ShowStatusCenterButton));
 						break;
 				}
 			};
@@ -1124,6 +1146,30 @@ namespace Files.App.ViewModels.UserControls
 					ContentPageContext.ShellPage.ShellViewModel.WorkingDirectory,
 					Strings.NavigationToolbarVisiblePathNoResults.GetLocalizedResource()));
 			}
+		}
+
+		public void PopulateOmnibarSuggestionsForCommandPaletteMode()
+		{
+			OmnibarCommandPaletteModeText ??= string.Empty;
+			OmnibarCommandPaletteModeSuggestionItems.Clear();
+
+			var suggestionItems = Commands.Where(command =>
+				command.IsExecutable &&
+				command.IsAccessibleGlobally &&
+				(command.Description.Contains(OmnibarCommandPaletteModeText, StringComparison.OrdinalIgnoreCase) ||
+				command.Code.ToString().Contains(OmnibarCommandPaletteModeText, StringComparison.OrdinalIgnoreCase)))
+			.Select(command => new NavigationBarSuggestionItem()
+			{
+				ThemedIconStyle = command.Glyph.ToThemedIconStyle(),
+				Glyph = command.Glyph.BaseGlyph,
+				Text = command.Code.ToString(),
+				PrimaryDisplay = command.Description,
+				HotKeys = command.HotKeys,
+				SearchText = OmnibarCommandPaletteModeText,
+			});
+
+			foreach (var item in suggestionItems)
+				OmnibarCommandPaletteModeSuggestionItems.Add(item);
 		}
 
 		[Obsolete("Remove once Omnibar goes out of experimental.")]
